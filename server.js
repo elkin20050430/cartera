@@ -9,12 +9,13 @@ app.use(cors());
 app.use(express.json());
 
 // Conexión a MongoDB Atlas usando .env
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI,);
 
 // Esquema y modelo
 const ClienteSchema = new mongoose.Schema({
   nombre: String,
-  correo: String,
+  direccion: String,
+  ruc: String,
   lugar: String,
   factura: String,
   monto: Number,
@@ -33,16 +34,20 @@ app.get('/clientes', async (req, res) => {
 });
 
 app.post('/clientes', async (req, res) => {
+  if (!Array.isArray(req.body.comprobantes)) req.body.comprobantes = [];
+  console.log(req.body);
   const cliente = new Cliente(req.body);
   await cliente.save();
   res.json(cliente);
 });
 
 app.put('/clientes/:id', async (req, res) => {
+  if (!Array.isArray(req.body.comprobantes)) req.body.comprobantes = [];
   const cliente = await Cliente.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(cliente);
 });
 
+// Ruta para eliminar cliente por _id
 app.delete('/clientes/:id', async (req, res) => {
   await Cliente.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
